@@ -22,6 +22,8 @@ with open(pickle_file, 'rb') as f:
 image_size = 64
 num_channels = 1
 
+print train_dataset_start
+
 
 def reformat(dataset_start, dataset_end):
     dataset_start = dataset_start.reshape(
@@ -38,10 +40,21 @@ print('Training set', train_dataset_start.shape, train_dataset_end.shape)
 print('Validation set', valid_dataset_start.shape, valid_dataset_end.shape)
 print('Test set', test_dataset_start.shape, test_dataset_end.shape)
 
+print train_dataset_start
 
-def accuracy(predictions, true):
-    return (100.0 * np.sum(np.argmax(predictions, 2) == np.argmax(true, 2))
-            / predictions.shape[0])
+
+def accuracy(predict, truth):
+    # test :
+    print "NON ZERO ", np.count_nonzero(predict)
+    testval1 = predict[7][30][30]
+    testtruth = truth[7][30][30]
+    print "TEST :", testval1, testtruth
+
+    value = np.isclose(predict, truth, 0.01)
+    nbTrue = np.sum(value)
+    nbElements = np.size(predict)*1.0
+
+    return 100.0*(nbTrue / nbElements)
 
 
 batch_size = 8
@@ -185,14 +198,16 @@ with graph.as_default():
 
     # loss = tf.abs(tf.sub(tf.reduce_sum(tf_train_dataset_end), tf.reduce_sum(train_output)))
 
-    loss = tf.reduce_sum(tf.squared_difference(tf_train_dataset_end, train_output))
+    # loss = tf.nn.l2_loss(tf_train_dataset_end - train_output)
 
-    print "loss : ", loss
+    loss = tf.reduce_sum(tf.squared_difference(tf_train_dataset_end, train_output))*1.0
+
+    # print "loss : ", loss
 
     # Optimizer.
-    # optimizer = tf.train.GradientDescentOptimizer(0.05).minimize(loss)
+    optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
     # optimizer = tf.train.AdadeltaOptimizer(0.05).minimize(loss)
-    optimizer = tf.train.RMSPropOptimizer(0.05). minimize(loss)
+    # optimizer = tf.train.RMSPropOptimizer(0.05). minimize(loss)
 
     # Predictions for the training, validation, and test data.
     train_prediction = train_output
@@ -211,8 +226,10 @@ with tf.Session(graph=graph) as session:
         feed_dict = {tf_train_dataset_start: batch_data_start, tf_train_dataset_end: batch_data_end}
         _, l, predictions = session.run(
             [optimizer, loss, train_prediction], feed_dict=feed_dict)
-        if (step % 50 == 0):
-            print('Minibatch loss at step %d: %f' % (step, l))
+
+        if step % 50 == 0:
+            print('\nMinibatch loss at step %d: %f' % (step, l))
+
             print('Minibatch accuracy: %.1f%%' % accuracy(predictions, batch_data_end))
             print('Validation accuracy: %.1f%%' % accuracy(valid_prediction.eval(), valid_dataset_end))
     print('Test accuracy: %.1f%%' % accuracy(test_prediction.eval(), test_dataset_end))
