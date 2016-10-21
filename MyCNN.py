@@ -92,7 +92,7 @@ def accuracy(predict, truth):
 batch_size = 8
 
 ## CONV: ###
-patch_size = 3
+patch_size = 5
 depth1 = 32
 depth2 = 64
 
@@ -268,9 +268,9 @@ with tf.Session(graph=graph) as session:
 
         if step % 15 == 0:
             print('\nMinibatch loss at step %d: \x1b[4;0;47m %f \x1b[0m' % (step, l))
-            print('Minibatch accuracy: %.1f%%' % accuracy(batch_data_end, batch_data_end))
+            print('Minibatch accuracy: %.1f%%' % accuracy(predictions, batch_data_end))
             print('Validation accuracy: %.1f%%' % accuracy(valid_prediction.eval(), valid_dataset_end))
-            display(removeChannel(predictions, image_size)[0])
+            # display(removeChannel(predictions, image_size)[0])
 
     print('Test accuracy: %.1f%%' % accuracy(test_prediction.eval(), test_dataset_end))
 
