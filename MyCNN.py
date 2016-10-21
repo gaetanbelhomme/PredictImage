@@ -161,70 +161,70 @@ with graph.as_default():
 
     ## CNN CONFIGURATION : ##
     def model(data):
-	    	## CONV 1 : ##
-	    	## INPUT : 64*64*1  OUTPUT : 32*32*32 ##
-	        with tf.name_scope('Conv1'):  
-		            h_conv1 = tf.nn.relu(conv2d(data, W_conv1) + b_conv1)
-		            h_pool1 = max_pool_2x2(h_conv1)
+    	## CONV 1 : ##
+    	## INPUT : 64*64*1  OUTPUT : 32*32*32 ##
+        with tf.name_scope('Conv1'):  
+            h_conv1 = tf.nn.relu(conv2d(data, W_conv1) + b_conv1)
+            h_pool1 = max_pool_2x2(h_conv1)
 
-		            ## TEST : ##
-		            print '\ninput  Conv1 : ', data.get_shape()
-		            print 'output Conv1 : ', h_pool1.get_shape()
+            ## TEST : ##
+            print '\ninput  Conv1 : ', data.get_shape()
+            print 'output Conv1 : ', h_pool1.get_shape()
 
-		    ## CONV 2 : ##
-	    	## INPUT : 32*32*32  OUTPUT : 16*16*64 ##
-	        with tf.name_scope('Conv2'):  
-		            h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
-		            h_pool2 = max_pool_2x2(h_conv2)
+	    ## CONV 2 : ##
+    	## INPUT : 32*32*32  OUTPUT : 16*16*64 ##
+        with tf.name_scope('Conv2'):  
+            h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+            h_pool2 = max_pool_2x2(h_conv2)
 
-		            ## TEST : ##
-		            print '\ninput  Conv2 : ', h_pool1.get_shape()
-		            print 'output Conv2 : ', h_pool2.get_shape()
+            ## TEST : ##
+            print '\ninput  Conv2 : ', h_pool1.get_shape()
+            print 'output Conv2 : ', h_pool2.get_shape()
 
-		    ## FULLYCONNECTED : ##
-	    	## INPUT : 16*16*64  OUTPUT : 1*2048 ##     
-	        with tf.name_scope('FullyConnected'):  
-		            shape = h_pool2.get_shape().as_list()
-		            h_pool2_flat = tf.reshape(h_pool2, [-1, shape[1]*shape[2]*shape[3]])
-		            h_fc = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc) + b_fc)
+	    ## FULLYCONNECTED : ##
+    	## INPUT : 16*16*64  OUTPUT : 1*2048 ##     
+        with tf.name_scope('FullyConnected'):  
+            shape = h_pool2.get_shape().as_list()
+            h_pool2_flat = tf.reshape(h_pool2, [-1, shape[1]*shape[2]*shape[3]])
+            h_fc = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc) + b_fc)
 
-		            # h_fc_drop = tf.nn.dropout(h_fc, keep_prob)
+            # h_fc_drop = tf.nn.dropout(h_fc, keep_prob)
 
-		            ## TEST : ##
-		            print '\ninput  FullyConnected : ', h_pool2.get_shape()
-		            print 'middle flat FullyConnected : ', h_pool2_flat.get_shape()
-		            print 'output FullyConnected : ', h_fc.get_shape()
+            ## TEST : ##
+            print '\ninput  FullyConnected : ', h_pool2.get_shape()
+            print 'middle flat FullyConnected : ', h_pool2_flat.get_shape()
+            print 'output FullyConnected : ', h_fc.get_shape()
 
-		    ## UNFULLYCONNECTED : ##
-	    	## INPUT : 1*2048  OUTPUT : 16*16*64 ##
-	        with tf.name_scope('UnFullyConnected'):
-		            h_Ufc1 = tf.nn.relu(tf.matmul(h_fc, W_Ufc) + b_Ufc)
-		            h_Ufc2 = tf.reshape(h_Ufc1, [-1, shape[1], shape[2], shape[3]])
+	    ## UNFULLYCONNECTED : ##
+    	## INPUT : 1*2048  OUTPUT : 16*16*64 ##
+        with tf.name_scope('UnFullyConnected'):
+            h_Ufc1 = tf.nn.relu(tf.matmul(h_fc, W_Ufc) + b_Ufc)
+            h_Ufc2 = tf.reshape(h_Ufc1, [-1, shape[1], shape[2], shape[3]])
 
-		            ## TEST : ##
-		            print '\ninput  UnFullyConnected : ', h_fc.get_shape()
-		            print 'middle UnFullyConnected : ', h_Ufc1.get_shape()
-		            print 'output UnFullyConnected : ', h_Ufc2.get_shape()
+            ## TEST : ##
+            print '\ninput  UnFullyConnected : ', h_fc.get_shape()
+            print 'middle UnFullyConnected : ', h_Ufc1.get_shape()
+            print 'output UnFullyConnected : ', h_Ufc2.get_shape()
 
-		    ## UNCONV 1 : ##
-	    	## INPUT : 16*16*64  OUTPUT : 32*32*32 ##
-	        with tf.name_scope('DeConv1'):
-		            h_deconv1 = tf.nn.relu(deconv2d(h_Ufc2, W_deconv1, [shape[0], 32, 32, depth1]) + b_deconv1)
+	    ## UNCONV 1 : ##
+    	## INPUT : 16*16*64  OUTPUT : 32*32*32 ##
+        with tf.name_scope('DeConv1'):
+            h_deconv1 = tf.nn.relu(deconv2d(h_Ufc2, W_deconv1, [shape[0], 32, 32, depth1]) + b_deconv1)
 
-		            ## TEST : ##
-		            print '\ninput  Deconv1 : ', h_Ufc2.get_shape()
-		            print 'output Deconv1 : ', h_deconv1.get_shape()
+            ## TEST : ##
+            print '\ninput  Deconv1 : ', h_Ufc2.get_shape()
+            print 'output Deconv1 : ', h_deconv1.get_shape()
 
-		    ## UNCONV 2 : ##
-	    	## INPUT : 32*32*32  OUTPUT : 64*64*1 ##
-	        with tf.name_scope('DeConv2'):
-		            h_deconv2 = deconv2d(h_deconv1, W_deconv2, [shape[0], 64, 64, 1]) + b_deconv2
+	    ## UNCONV 2 : ##
+    	## INPUT : 32*32*32  OUTPUT : 64*64*1 ##
+        with tf.name_scope('DeConv2'):
+            h_deconv2 = deconv2d(h_deconv1, W_deconv2, [shape[0], 64, 64, 1]) + b_deconv2
 
-		            ## TEST : ##
-		            print '\ninput  Deconv2 : ', h_deconv1.get_shape()
-		            print 'output Deconv2 : ', h_deconv2.get_shape()
+            ## TEST : ##
+            print '\ninput  Deconv2 : ', h_deconv1.get_shape()
+            print 'output Deconv2 : ', h_deconv2.get_shape()
 
-	        return h_deconv2
+        return h_deconv2
 
 
     ## TRAINING COMPUTATION : ##
