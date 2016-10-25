@@ -17,8 +17,8 @@ import sys
 # Get FolderName :
 
 root = os.getcwd()
-if np.size(sys.argv) != 4:
-    print "Error : It must be : python", sys.argv[0], "TestingFolder TrainingFolder OutputFileName"
+if np.size(sys.argv) != 5:
+    print "Error : It must be : python", sys.argv[0], "TestingFolder TrainingFolder OutputFileName filetype [npz/pickle]"
     exit()
 
 test = sys.argv[1]
@@ -191,23 +191,36 @@ train_dataset_start, train_dataset_end = randomize(train_dataset_start, train_da
 test_dataset_start, test_dataset_end = randomize(test_dataset_start, test_dataset_end)
 valid_dataset_start, valid_dataset_end = randomize(valid_dataset_start, valid_dataset_end)
 
+if sys.argv[4] == 'npz':
+    numpy_file = OutputFile + '.npz'
+    try:
+        np.savez(numpy_file, train_dataset_start=train_dataset_start, train_dataset_end=train_dataset_end,
+                 valid_dataset_start=valid_dataset_start, valid_dataset_end=valid_dataset_end,
+                 test_dataset_start=test_dataset_start, test_dataset_end=test_dataset_end)
 
-pickle_file = OutputFile + '.pickle'
+    except Exception as e:
+        print('Unable to save data to', numpy_file, ':', e)
+        raise
+    statinfo = os.stat(numpy_file)
+    print('Numpy file size:', statinfo.st_size)
 
-try:
-  f = open(pickle_file, 'wb')
-  save = {
-    'train_dataset_start': train_dataset_start,
-    'train_dataset_end': train_dataset_end,
-    'valid_dataset_start': valid_dataset_start,
-    'valid_dataset_end': valid_dataset_end,
-    'test_dataset_start': test_dataset_start,
-    'test_dataset_end': test_dataset_end,
-    }
-  pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
-  f.close()
-except Exception as e:
-  print('Unable to save data to', pickle_file, ':', e)
-  raise
-statinfo = os.stat(pickle_file)
-print('Compressed pickle size:', statinfo.st_size)
+else:
+    pickle_file = OutputFile + '.pickle'
+    try:
+      f = open(pickle_file, 'wb')
+      save = {
+        'train_dataset_start': train_dataset_start,
+        'train_dataset_end': train_dataset_end,
+        'valid_dataset_start': valid_dataset_start,
+        'valid_dataset_end': valid_dataset_end,
+        'test_dataset_start': test_dataset_start,
+        'test_dataset_end': test_dataset_end,
+        }
+      pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
+      f.close()
+    except Exception as e:
+      print('Unable to save data to', pickle_file, ':', e)
+      raise
+    statinfo = os.stat(pickle_file)
+    print('Compressed pickle size:', statinfo.st_size)
+
