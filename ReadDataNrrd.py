@@ -204,6 +204,15 @@ if sys.argv[4] == 'npz':
     statinfo = os.stat(numpy_file)
     print('Numpy file size:', statinfo.st_size)
 
+elif sys.argv[4] == 'npy':
+    try:
+        np.save('train_dataset_start.npy', train_dataset_start)
+    except Exception as e:
+        print('Unable to save data to', 'train_dataset_start.npy', ':', e)
+        raise
+    statinfo = os.stat('train_dataset_start.npy')
+    print('Numpy file size:', statinfo.st_size)
+
 else:
     pickle_file = OutputFile + '.pickle'
     try:
