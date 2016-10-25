@@ -17,8 +17,8 @@ import sys
 # Get FolderName :
 
 root = os.getcwd()
-if np.size(sys.argv) != 5:
-    print "Error : It must be : python", sys.argv[0], "TestingFolder TrainingFolder OutputFileName filetype [npz/pickle]"
+if np.size(sys.argv) != 6:
+    print "Error : It must be : python", sys.argv[0], "TestingFolder TrainingFolder OutputFileName Resize [Y/N] filetype [npz/pickle]"
     exit()
 
 test = sys.argv[1]
@@ -191,7 +191,29 @@ train_dataset_start, train_dataset_end = randomize(train_dataset_start, train_da
 test_dataset_start, test_dataset_end = randomize(test_dataset_start, test_dataset_end)
 valid_dataset_start, valid_dataset_end = randomize(valid_dataset_start, valid_dataset_end)
 
-if sys.argv[4] == 'npz':
+num_channels = 1
+
+
+def reformat(dataset_start, dataset_end):
+    dataset_start = dataset_start.reshape(
+        (-1, image_size, image_size, num_channels)).astype(np.float32)
+    dataset_end = dataset_end.reshape(
+    (-1, image_size, image_size, num_channels)).astype(np.float32)
+    return dataset_start, dataset_end
+
+
+if sys.argv[4] == 'O':
+    train_dataset_start, train_dataset_end = reformat(train_dataset_start, train_dataset_end)
+    valid_dataset_start, valid_dataset_end = reformat(valid_dataset_start, valid_dataset_end)
+    test_dataset_start, test_dataset_end = reformat(test_dataset_start, test_dataset_end)
+
+
+print('Training set', train_dataset_start.shape, train_dataset_end.shape)
+print('Validation set', valid_dataset_start.shape, valid_dataset_end.shape)
+print('Test set', test_dataset_start.shape, test_dataset_end.shape)
+
+
+if sys.argv[5] == 'npz':
     numpy_file = OutputFile + '.npz'
     try:
         np.savez(numpy_file, train_dataset_start=train_dataset_start, train_dataset_end=train_dataset_end,
@@ -204,7 +226,7 @@ if sys.argv[4] == 'npz':
     statinfo = os.stat(numpy_file)
     print('Numpy file size:', statinfo.st_size)
 
-elif sys.argv[4] == 'npy':
+elif sys.argv[5] == 'npy':
     save = {
         'train_dataset_start': train_dataset_start,
         'train_dataset_end': train_dataset_end,
