@@ -196,9 +196,9 @@ num_channels = 1
 
 def reformat(dataset_start, dataset_end):
     dataset_start = dataset_start.reshape(
-        (-1, image_size, image_size, num_channels)).astype(np.float32)
+        (-1, num_channels, image_size, image_size)).astype(np.float32)
     dataset_end = dataset_end.reshape(
-    (-1, image_size, image_size, num_channels)).astype(np.float32)
+    (-1, num_channels, image_size, image_size)).astype(np.float32)
     return dataset_start, dataset_end
 
 
